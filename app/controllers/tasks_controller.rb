@@ -1,5 +1,6 @@
 class TasksController < ApplicationController
   before_action :require_user_logged_in
+  before_action :correct_user, only: [:show, :edit, :update, :destroy]
   
   def index
     @tasks = current_user.tasks.order(id: :desc).page(params[:page])
@@ -54,6 +55,12 @@ class TasksController < ApplicationController
   def task_params
     params.require(:task).permit(:content, :status)
   end
-
+  
+  def correct_user
+    @task = Task.find_by(id: params[:id])
+    if @task && current_user != @task.user
+      redirect_to login_url
+    end
+  end
 end
 
